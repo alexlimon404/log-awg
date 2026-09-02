@@ -75,6 +75,17 @@ UPDATE peers SET track_stats = false WHERE public_key = '<pubkey>';
 
 ### Разовая настройка сервера (один раз)
 
+Нужны `go` (уже стоит, раз есть другие go-проекты на этом сервере) и CLI
+`migrate` — если его ещё нет (`command -v migrate` ничего не выведет), ставится
+так:
+
+```bash
+go install -tags postgres github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+export PATH="$PATH:$(go env GOPATH)/bin"   # добавить и в ~/.bashrc, иначе PATH забудется в новой сессии
+```
+
+Дальше сам деплой:
+
 ```bash
 ssh user@your-server
 
@@ -94,10 +105,6 @@ sudo supervisorctl reread
 sudo supervisorctl update
 sudo supervisorctl start log-awg
 ```
-
-(нужен установленный `go` и [`migrate`](https://github.com/golang-migrate/migrate)
-на сервере — `go install -tags postgres github.com/golang-migrate/migrate/v4/cmd/migrate@latest`,
-если ещё не стоит)
 
 ### Каждый следующий деплой
 
