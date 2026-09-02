@@ -74,11 +74,16 @@ func (q *Queries) UpdatePeerCounters(ctx context.Context, arg UpdatePeerCounters
 }
 
 const upsertPeer = `-- name: UpsertPeer :one
-INSERT INTO peers (public_key, first_seen, last_seen)
-VALUES ($1, now(), now())
-ON CONFLICT (public_key) DO UPDATE SET last_seen = now()
+INSERT INTO peers (public_key, allowed_ips, first_seen, last_seen)
+VALUES ($1, $2, now(), now())
+ON CONFLICT (public_key) DO UPDATE SET last_seen = now(), allowed_ips = $2
 RETURNING id, track_stats, last_rx_bytes, last_tx_bytes
 `
+
+type UpsertPeerParams struct {
+	PublicKey  string
+	AllowedIps string
+}
 
 type UpsertPeerRow struct {
 	ID          int64
@@ -87,8 +92,8 @@ type UpsertPeerRow struct {
 	LastTxBytes int64
 }
 
-func (q *Queries) UpsertPeer(ctx context.Context, publicKey string) (UpsertPeerRow, error) {
-	row := q.db.QueryRow(ctx, upsertPeer, publicKey)
+func (q *Queries) UpsertPeer(ctx context.Context, arg UpsertPeerParams) (UpsertPeerRow, error) {
+	row := q.db.QueryRow(ctx, upsertPeer, arg.PublicKey, arg.AllowedIps)
 	var i UpsertPeerRow
 	err := row.Scan(
 		&i.ID,

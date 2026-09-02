@@ -36,6 +36,7 @@ func TestSaveSnapshot(t *testing.T) {
 		{
 			PublicKey:       trackedKey,
 			Endpoint:        "1.2.3.4:51820",
+			AllowedIPs:      []string{"10.12.0.10/32"},
 			HasHandshake:    true,
 			LatestHandshake: hs,
 			RxBytes:         1000,
@@ -65,6 +66,14 @@ func TestSaveSnapshot(t *testing.T) {
 	}
 	if skipped != 2 {
 		t.Errorf("expected 2 skipped, got %d", skipped)
+	}
+
+	var allowedIPs string
+	if err := s.pool.QueryRow(ctx, `SELECT allowed_ips FROM peers WHERE public_key = $1`, trackedKey).Scan(&allowedIPs); err != nil {
+		t.Fatalf("query allowed_ips: %v", err)
+	}
+	if allowedIPs != "10.12.0.10/32" {
+		t.Errorf("expected allowed_ips %q, got %q", "10.12.0.10/32", allowedIPs)
 	}
 
 	var rxDelta, txDelta int64

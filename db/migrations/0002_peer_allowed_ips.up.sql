@@ -1,0 +1,1 @@
+ALTER TABLE peers ADD COLUMN allowed_ips TEXT NOT NULL DEFAULT '';

@@ -1,7 +1,7 @@
 -- name: UpsertPeer :one
-INSERT INTO peers (public_key, first_seen, last_seen)
-VALUES ($1, now(), now())
-ON CONFLICT (public_key) DO UPDATE SET last_seen = now()
+INSERT INTO peers (public_key, allowed_ips, first_seen, last_seen)
+VALUES ($1, $2, now(), now())
+ON CONFLICT (public_key) DO UPDATE SET last_seen = now(), allowed_ips = $2
 RETURNING id, track_stats, last_rx_bytes, last_tx_bytes;
 
 -- name: UpdatePeerCounters :exec

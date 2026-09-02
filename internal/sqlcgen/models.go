@@ -17,6 +17,7 @@ type Peer struct {
 	LastSeen    pgtype.Timestamptz
 	LastRxBytes int64
 	LastTxBytes int64
+	AllowedIps  string
 }
 
 type PeerSnapshot struct {

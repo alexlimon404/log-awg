@@ -77,6 +77,7 @@ erDiagram
         text public_key UK
         text name
         boolean track_stats
+        text allowed_ips
         timestamptz first_seen
         timestamptz last_seen
         bigint last_rx_bytes
@@ -125,6 +126,14 @@ CREATE INDEX peer_snapshots_peer_ts_idx ON peer_snapshots (peer_id, ts DESC);
 CREATE INDEX peer_snapshots_ts_idx ON peer_snapshots (ts);
 ```
 
+`db/migrations/0002_peer_allowed_ips.up.sql` (внутренний VPN-адрес пира,
+`10.12.0.x/32` из allowed-ips дампа; статичен per-пир, поэтому в `peers`, а
+не дублируется в каждой строке `peer_snapshots`; несколько CIDR через запятую,
+как в самом dump-выводе):
+```sql
+ALTER TABLE peers ADD COLUMN allowed_ips TEXT NOT NULL DEFAULT '';
+```
+
 `db/migrations/0001_init.down.sql`:
 ```sql
 DROP TABLE peer_snapshots;
@@ -163,9 +172,9 @@ FROM peer_snapshots ...
 
 ```sql
 -- name: UpsertPeer :one
-INSERT INTO peers (public_key, first_seen, last_seen)
-VALUES ($1, now(), now())
-ON CONFLICT (public_key) DO UPDATE SET last_seen = now()
+INSERT INTO peers (public_key, allowed_ips, first_seen, last_seen)
+VALUES ($1, $2, now(), now())
+ON CONFLICT (public_key) DO UPDATE SET last_seen = now(), allowed_ips = $2
 RETURNING id, track_stats, last_rx_bytes, last_tx_bytes;
 
 -- name: UpdatePeerCounters :exec

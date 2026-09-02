@@ -5,6 +5,7 @@ package store
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -50,7 +51,10 @@ func (s *Store) SaveSnapshot(ctx context.Context, peers []awg.Peer) (saved, skip
 	now := time.Now()
 
 	for _, p := range peers {
-		row, err := q.UpsertPeer(ctx, p.PublicKey)
+		row, err := q.UpsertPeer(ctx, sqlcgen.UpsertPeerParams{
+			PublicKey:  p.PublicKey,
+			AllowedIps: strings.Join(p.AllowedIPs, ","),
+		})
 		if err != nil {
 			return 0, 0, fmt.Errorf("upsert peer %s: %w", p.PublicKey, err)
 		}
