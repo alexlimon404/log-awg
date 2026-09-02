@@ -334,9 +334,12 @@ stderr_logfile=/var/log/log-awg.err.log
    цикл (раздел 8) → graceful shutdown по сигналу.
 6. `deploy/*` — supervisor program config (`log-awg.conf`) + пример env-файла +
    `deploy.sh`, запускаемый прямо на сервере (git pull → build → migrate → restart).
-7. Ручная проверка на сервере: `migrate -path db/migrations -database $DATABASE_URL up`,
-   затем `supervisorctl start log-awg`, `tail -f /var/log/log-awg.{out,err}.log` —
-   убедиться, что тики идут раз в минуту и пишутся в `peer_snapshots`.
+7. Ручная проверка на сервере: `go build -buildvcs=false -o log-awg ./cmd/log-awg`
+   (см. README, раздел "Разовая настройка сервера" — без этого шага
+   `supervisorctl start` падает, файла `log-awg` ещё нет), затем
+   `migrate -path db/migrations -database $DATABASE_URL up`, `supervisorctl start log-awg`,
+   `tail -f /var/log/log-awg.{out,err}.log` — убедиться, что тики идут раз в
+   минуту и пишутся в `peer_snapshots`.
 
 ## 11. Статус
 
