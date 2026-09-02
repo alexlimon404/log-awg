@@ -93,8 +93,10 @@ sudo git clone git@github.com:alexlimon404/log-awg.git /var/www/log-awg
 sudo chown -R www-data:www-data /var/www/log-awg
 cd /var/www/log-awg
 
-# собрать бинарник — supervisor будет запускать именно ./log-awg
-sudo -u www-data go build -buildvcs=false -o log-awg ./cmd/log-awg
+# собрать бинарник — supervisor будет запускать именно ./log-awg.
+# env "PATH=$PATH" обязателен: sudo -u <user> сам по себе сбрасывает PATH на
+# secure_path из sudoers и не видит go, даже если у вас (root) go в PATH есть.
+sudo -u www-data env "PATH=$PATH" go build -buildvcs=false -o log-awg ./cmd/log-awg
 
 # конфиг — отдельно от репозитория, там реальный пароль от БД
 sudo cp deploy/env.example env

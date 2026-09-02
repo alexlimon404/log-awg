@@ -10,7 +10,7 @@ echo "build"
 
 go version
 
-sudo -u www-data go build -buildvcs=false -o log-awg ./cmd/log-awg
+sudo -u www-data env "PATH=$PATH" go build -buildvcs=false -o log-awg ./cmd/log-awg
 
 echo "migrate"
 
