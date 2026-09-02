@@ -92,11 +92,15 @@ func ParseDump(out []byte) ([]Peer, error) {
 		}
 		p.TxBytes = tx
 
-		keepalive, err := strconv.Atoi(fields[7])
-		if err != nil {
-			return nil, fmt.Errorf("dump line %d: bad persistent-keepalive %q: %w", i+1, fields[7], err)
+		// awg (unlike upstream wg) reports a disabled keepalive as the
+		// literal string "off" instead of "0".
+		if fields[7] != "off" {
+			keepalive, err := strconv.Atoi(fields[7])
+			if err != nil {
+				return nil, fmt.Errorf("dump line %d: bad persistent-keepalive %q: %w", i+1, fields[7], err)
+			}
+			p.KeepaliveSec = keepalive
 		}
-		p.KeepaliveSec = keepalive
 
 		peers = append(peers, p)
 	}

@@ -12,7 +12,7 @@ func TestParseDump(t *testing.T) {
 	// shapes seen in real `awg show awg0 dump` output).
 	dump := "" +
 		"cHJpdmtleQ==\tcHVia2V5\t9440\t0\n" +
-		"938ozrqky5CZVl3msIieRPneqnPyLmzjp4h4D1KA5UI=\t(none)\t46.138.180.183:1094\t10.12.0.3/32\t1756800000\t1524000000\t31424000000\t0\n" +
+		"938ozrqky5CZVl3msIieRPneqnPyLmzjp4h4D1KA5UI=\t(none)\t46.138.180.183:1094\t10.12.0.3/32\t1756800000\t1524000000\t31424000000\toff\n" +
 		"focNGHcMYY156toc7Yr24p4T4XQ3cxn70bcM12qRehs=\t(none)\t(none)\t10.12.0.5/32\t1756798000\t21561344\t442306560\t25\n" +
 		"TXlMvhMfx1y4jxz5FoE2H8+jh5dRLNJ0PLq9r2YgR3o=\t(none)\t(none)\t10.12.0.4/32\t0\t0\t0\t0\n"
 
@@ -42,6 +42,9 @@ func TestParseDump(t *testing.T) {
 	}
 	if len(active.AllowedIPs) != 1 || active.AllowedIPs[0] != "10.12.0.3/32" {
 		t.Errorf("unexpected allowed ips: %v", active.AllowedIPs)
+	}
+	if active.KeepaliveSec != 0 {
+		t.Errorf("expected KeepaliveSec=0 for \"off\", got %d", active.KeepaliveSec)
 	}
 
 	idle := peers[1]
