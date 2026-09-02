@@ -84,7 +84,7 @@ cd /var/www/log-awg
 
 # конфиг — отдельно от репозитория, там реальный пароль от БД
 sudo cp deploy/env.example env
-sudo vi env                              # вписать реальный DATABASE_URL
+sudo nano env                            # вписать реальный DATABASE_URL
 sudo chown root:root env && sudo chmod 600 env   # www-data этот файл не должен читать
 
 migrate -path db/migrations -database "$(grep DATABASE_URL env | cut -d= -f2-)" up
