@@ -280,12 +280,15 @@ Graceful shutdown — через `signal.NotifyContext(context.Background(), sys
 Программа под supervisor не может напрямую прочитать `EnvironmentFile`, как
 это умеет systemd, поэтому `command` — обёртка на `sh -c`, которая сначала
 подтягивает `env`, потом делает `exec` в сам бинарник (секрет в файл конфига
-supervisor не попадает).
+supervisor не попадает). `set -a` перед `.` обязателен: обычный `. env` только
+задаёт переменные в текущем шелле, не экспортирует их — без `set -a` `exec`
+передаст бинарнику пустое окружение, и `os.Getenv("DATABASE_URL")` в Go
+вернёт пустую строку, даже если в `env` всё написано верно.
 
 `deploy/log-awg.conf` (→ `/etc/supervisor/conf.d/log-awg.conf`):
 ```ini
 [program:log-awg]
-command=/bin/sh -c '. /var/www/log-awg/env && exec /var/www/log-awg/log-awg'
+command=/bin/sh -c 'set -a; . /var/www/log-awg/env; set +a; exec /var/www/log-awg/log-awg'
 directory=/var/www/log-awg
 user=root
 autostart=true
